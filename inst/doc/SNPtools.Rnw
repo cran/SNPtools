@@ -1,0 +1,283 @@
+%\VignetteIndexEntry{SNP Retrieval and Manipulation}
+\documentclass[a4paper]{article}
+
+\usepackage{hyperref}
+
+\title{SNP Retrieval and Manipulation}
+\author{Daniel M. Gatti}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\maketitle
+\section{Introduction}
+
+This vignette demonstrates how to use the SNP manipulation functions to retrieve, subset and plot 
+SNPs from large data sets. There are several large SNP data sets, such as the 
+\href{http://www.sanger.ac.uk/resources/mouse/genomes/}{Sanger Mouse Genomes} and a set of imputed SNPs from the 
+\href{http://www.csbio.unc.edu/imputation}{University of North Carolina at Chapel Hill}. The vignette
+is oriented toward the researcher that has mapped a QTL to a given locus and wants
+to plot genes and SNPs in the locus.
+
+Due to the size of the SNP files, it is inadvisable to read the entire file into memory in order to
+retrieve a subset of SNPs. Rather, the SNP file are zipped and indexed to reduce file size and speed
+up SNP retrieval.
+
+\section{Installation and Required Files}
+
+SNPtools depends upon four other R packages that should be installed beforehand:
+\begin{tabular}{c}
+IRanges
+GenomicRanges
+Biostrings
+Rsamtools
+\end{tabular}
+
+To install these, you can run:
+\begin{verbatim}
+  source("http://bioconductor.org/biocLite.R")
+  biocLite(c("IRanges", "GenomicRanges", "Biostrings", "Rsamtools"))
+\end{verbatim}
+
+You will need a SNP file and a file with gene locations. These can be obtained
+\href{http://cgd.jax.org/tools/SNPtools.shtml}{here}.  You will need both the SNP
+files as well as the gene location files. We use gene locations from \href{http://jax.org}{The Jackson Laboratory} 
+\href{http://informatics.jax.org/}{Mouse Genome Informatics}.  Download both the
+*.gz file and the *.gz.tbi file.  The files are zipped and indexed using 
+\href{http://samtools.sourceforge.net/tabix.shtml}{Tabix}.  The *.gz file contains 
+the data and the *.gz.tbi file contains the index to the data.
+
+To load the library, use:
+
+<<>>=
+library(SNPtools)
+@
+
+\section{Retrieving Sanger SNPs}
+
+%Leonard McMillan's group at The University of North Carolina (UNC) has used the Sanger SNPs 
+%to impute the alleles calls for 88 strains \href{http://csbio.unc.edu/imputation/}{http://csbio.unc.edu/imputation/}. 
+%Wang JR, Pardo-Manuel de Villena F, Lawson HA, Cheverud JM, Churchill GA, McMillan L.,
+%Computation of Single-Nucleotide Polymorphisms in Inbred Mice Using Local Phylogeny,
+%\emph{Genetics}. 2012 Feb;190(2):449-58, 
+
+
+We have taken the Sanger SNPs and reformatted them into a text format, zipped and indexed using 
+\href{http://samtools.sourceforge.net/tabix.shtml}{Tabix}. Use of this data should include the follwing references: 
+\medskip
+Keane TM, Goodstadt L, Danecek P, et al. (2011)
+Mouse genomic variation and its effect on phenotypes and gene regulation,
+\emph{Nature}, 477(7364):289-294, 
+\medskip
+Yalcin B, Wong K, Agam A, et al. (2011)
+Sequence-based characterization of structural variation in the mouse genome,
+\emph{Nature}, 477(7364):326-329.
+\medskip
+The available strains are:
+\medskip
+\begin{tabular}{ccc}
+%129P2/OlaHsd & 129S1/SvImJ & 129S5/SvEvBrd & AKR/J & A/J & BALB/cJ & C3H/HeJ & C57BL/6NJ & CAST/EiJ & CBA/J & DBA/2J & LP/J & NOD/ShiLtJ & NZO/HILtJ & PWK/PhJ & SPRET/EiJ & WSB/EiJ & 129P1/ReJ & 129P3/J & 129S6/SvEvTac & 129T2/SvEmsJ & 129X1/SvJ & A/WySnJ & AEJ/GnLeJ & AEJ/GnRk & ALR/LtJ & ALS/LtJ & BALB/cByJ & BDP/J & BPH/2J & BPL/1J & BPN/3J & BTBRT<+>tf/J & BUB/BnJ & BXSB/MpJ & C3HeB/FeJ & C57BL/10J & C57BL/10ScNJ & C57BL/10ScSnJ & C57BL/6CR & C57BL/6Tc & C57BLKS/J & C57BR/cdJ & C57L/J & C58/J & CBA/CaJ & CE/J & CHMU/LeJ & DBA/1J & DBA/1LacJ & DBA/2DeJ & DBA/2HaSmnJ & DDK & DDY/JclSidSeyfrkJ & DLS/LeJ & EL/SuzSeyfrkJ & FVB/NJ & HPG/BmJ & I/LnJ & JE/LeJ & KK/HIJ & LG/J & LT/SvEiJ & MRL/MpJ & NON/LtJ & NONcNZO10/LtJ & NONcNZO5/LtJ & NOR/LtJ & NU/J & NZB/BINJ & NZL/LtJ & NZM2410/J & NZW/LacJ & P/J & PL/J & PN/nBSWUmaDJ & RF/J & RHJ/LeJ & RIIIS/J & RSV/LeJ & SB/LeJ & SEA/GnJ & SEC/1GnLeJ & SEC/1ReJ & SH1/LeJ & SI/ColTyrp1bDnahc11iv/J & SJL/Bm & SJL/J & SM/J & SSL/LeJ & ST/bJ & STX/Le & SWR/J & TALLYHO/JngJ & TKDU/DnJ & TSJ/LeJ & YBR/EiJ & ZRDCT Rax<+>/ChUmdJ & IBWSP2 & IBWSR2 & ICOLD2 & IHOT1 & IHOT2 & ILS/IbgTejJ & ISS/IbgTejJ & C57BL/6J
+129P2/OlaHsd & 129S1/SvImJ & 129S5SvEvBrd & A/J & AKR/J & BALB/cJ & C3H/HeJ & C57BL/6J & C57BL/6NJ & CAST/EiJ & CBA/J & DBA/2J & FVB/NJ & LP/J & NOD/ShiLtJ & NZO/HlLtJ & PWK/PhJ & WSB/EiJ
+\end{tabular}
+
+The allele calls have a qulaity score of either 0 or 1 corresponding to bad or good, respectively. SNPs can be subset by genomic region, strains, polymorphic status and quality.
+
+\subsection{Making a SNP Plot with a single command}
+
+There is a single function that will perform all of the SNP analysis detail below.  The commands
+in the next section break the work up into separate pieces, which may be useful when you are making mulitple
+plots or when you want more control over your data.
+
+First set the path to the SNP file and the MGI file that you downloaded.  There are two files with each download.  
+Select the one that ends in "gz", not "tbi".  You can download the files from 
+\href{http://cgd.jax.org/tools/SNPtools.shtml}{SNPtools} and set them to paths in your local file system.
+Below, we set them to web URLs at the Jackson Laboratory.
+
+<<>>=
+snp.file = "http://cgd.jax.org/tools/SNPtools/Build38/sanger.snps.NCBI38.txt.gz" 
+mgi.file = "http://cgd.jax.org/tools/SNPtools/MGI/MGI.20130305.sorted.txt.gz"
+@
+
+Next, get the strain names that are available in the SNP file. If you are mapping with the Collaborative Cross
+ or Diversity Outbred founders, then you can skip this argument.  They are the default strains.
+Otherwise, it's a good idea to select them directly from the list of available strains because
+there are small differences in nomenclature that can cause mismatches. Here, we just get the
+CC founders to show how to retreive them.
+
+<<>>=
+available.strains = get.strains(snp.file)
+strains = available.strains[c(4, 2, 8,  15, 16, 10, 17, 18)]
+strains
+@
+
+You can also load in your QTL data. The format requires a data.frame with three 
+columns containing chromosome, Mb position and LOD score.  See the example below.
+
+<<>>=
+data(qtl)
+head(qtl)
+@
+
+This QTL data is for mean corpuscular hemoglobin concentration.
+
+Then run \texttt{variant.plot}, which returns a list of all SNPs that match the strain pattern,
+along with the genes that the lie within. We know from prior information that C57BL/6J, 
+NOD/ShiLtJ and NZO/HlLtJ have one allele and the remaining five strains have the other.
+
+<<fig = TRUE>>=
+cat.snps = variant.plot(var.file = snp.file, mgi.file = mgi.file,
+           chr = 7, start = 103.3, end = 104.3, strains = strains,
+           pattern = strains[c(3:5)], qtl = qtl)
+@
+
+The function returns the SNPS that match the desired allele pattern along with information 
+about whether they occur in exons.  As you can see, the SNPs that match the pattern
+cluster over a set of hemoglobin (\emph{Hbb}) genes. These are certainly plausible candidate
+for a hemoglobin related trait.
+
+<<>>=
+head(cat.snps)
+@
+
+\section{Retrieving and Plotting SNPs for a QTL Interval}
+
+In \href{http://bloodjournal.hematologylibrary.org/content/116/25/e139.long}{Peters et.al, Blood, 2010}, the authors found a QTL for mean corpuscular hemoglobin concentration on Chr 7.  Through a variety of analyses, the authors narrowed the QTL interval to 108.5 - 111.58 Mb.  Below is a table of strains that contribute high and low alleles.
+\medskip
+\begin{tabular}{cc}
+High Allele & Low Allele \\
+129/SvImJ & C57BL/6J \\
+A/J & NOD/ShiLtJ \\
+WSB/EiJ &  NZO/HlLtJ \\
+CAST/EiJ &  \\
+PWK/PhJ &  \\
+\end{tabular}
+\medskip
+First, retrieve the polymorphic SNPs for your strains in the QTL interval (Chr 7: 103.3 - 104.3 Mb).
+
+<<>>=
+available.strains = get.strains(snp.file)
+strains = available.strains[c(4, 2, 8,  15, 16, 10, 17, 18)]
+snps = get.variants(chr = 7, start = 103.3, end = 104.3,
+       strains = strains, type = "snp")
+nrow(snps)
+@
+
+There are 25,394 SNPs in this region.  Plot the alleles, using C57BL/6J as the reference.
+
+<<fig = TRUE>>=
+nsnps = convert.variants.to.numeric(snps)
+snp.plot(nsnps, ref = "C57BL/6J", cluster = T)
+@
+
+Since C57BL/6J, NOD/ShiLtJ and NZO/HlLTJ have low CHCM values and the remaining strains have higher values, candidate SNPs will have the same allele in C57BL/6J and SM/J, but a different allele for the remaining strains.  Use \texttt{get.pattern.snps} to retrieve the SNPs that fit this pattern.
+
+<<>>=
+strain.subset = c("C57BL/6J", "NOD/ShiLtJ", "NZO/HlLtJ")
+snp.subset = get.pattern.variants(snps, strain.subset)
+nrow(snp.subset)
+@
+
+This has narrowed the SNPs down to 2,596.  Next, plot the SNPs in the QTL interval, marking the SNPs that fit this pattern, highlighting the low allele strains.
+
+\begin{center}
+<<fig = TRUE>>=
+snp.plot(nsnps, ref = "C57BL/6J", cluster = T, highlight = strain.subset,
+         pattern = snp.subset)
+@
+\end{center}
+
+If you have a LOD score (or other QTL statistic), you can add it to the SNP plot as a heat map.  Start by loading in your QTL data.  It must be a data.frame with three columns containing the chromosome, bp position and QTL statistic (such as the LOD) for the region you are plotting. Then use the \texttt{qtl} argument to feed it into \texttt{snp.plot}.
+
+<<>>=
+data(qtl)
+head(qtl)
+@
+
+\begin{center}
+<<fig = TRUE>>=
+snp.plot(nsnps, ref = "C57BL/6J", cluster = T, highlight = strain.subset,
+         pattern = snp.subset, qtl = qtl)
+@
+\end{center}
+
+The LOD score is highest in a region around 103.4 Mb.  The gene could be anywhere in the QTL interval, but we often start where the peak is highest and work outwards. Further, although SNPs that fit the allele pattern occur throughout the QTL interval, they seem to primarily cluster in a region between 103.6 and 103.9 Mb.  Note that you should not exclude the other regions completely, but we will focus on the largest cluster first.
+
+\subsection{Retrieving Mouse Genome Informatics (MGI) features}
+
+Next, we will add gene locations to the plot. If you have the MGI feature file in a parsed and Tabix indexed format, you can use the\texttt{get.mgi.features()} function to add these to your allele plot.  Note that \texttt{get.mgi.features()} has a file argument like \texttt{get.variants} and that you can specify an alternate file location.
+
+\begin{center}
+<<fig = TRUE>>=
+mgi = get.mgi.features(chr = 7, start = 103, end = 105,
+      source = "MGI", type = "gene")
+mgi = mgi[-grep("^Gm", mgi$Name),]
+snp.plot(nsnps, ref = "C57BL/6J", cluster = T,highlight =
+         strain.subset, pattern = snp.subset, qtl = qtl, 
+         mgi = mgi)
+@
+\end{center}
+
+As you can see, there is a cluster of hemoglobin (Hbb) genes in the middle of this region.  The three low allele strains all share an allele pattern that differs from the high allele strains.  This matches the conclusion of Peters et.al., who found that there is paralogous copy number variation of the Hbb genes at this locus.
+
+\section{Intersecting SNPs and Genes}
+
+Once you have a set of candidate SNPs, you may wish to prioritize them by intersecting them with genes.  The \texttt{categorize.variants()} function will classify SNPs according to whether they lie within exons, introns or the 3' or 5' untranslated region(UTR).
+
+<<>>=
+snps = get.variants(chr = 7, start = 103.3, end = 104.3,
+       strains = strains, type = "snp")
+snp.type = categorize.variants(snps)
+head(snp.type[grep("Hbb", snp.type$symbol),])
+@
+
+\section{Retrieving Indels and structural variants}
+
+The \texttt{get.variants} function can also retreive Indels and structural variants. You must supply the file
+argument as well as the type argument. Here, we use a file with only Collaborative Cross/Diversity Outbred founders.
+
+<<>>=
+indels = get.variants(file = "http://cgd.jax.org/tools/SNPtools/Build38/cc.indels.NCBI38.txt.gz",
+       chr = 7, start = 103.3, end = 104.3, type = "indel")
+head(indels)
+@
+
+
+\section{Plotting Gene Locations}
+
+The function \texttt{gene.plot} plots gene locations with labels to the right. To use it, retrieve MGI genes and feed them into the \textt{mgi} argument.  Optionally, you make select some genes to highlight.
+
+<<fig = TRUE>>=
+mgi = get.mgi.features(chr = 7, start = 103.3, end = 104.3,
+      source = "MGI", type = "gene")
+col = rep(1, nrow(mgi))
+col[grep("Hbb", mgi$Name)] = 2
+gp = gene.plot(mgi, col = col)
+@
+
+\section{Variant File Format for SNPtools}
+
+While the \link{http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41}{VCF} format is useful, 
+it requires too much time to parse these files in R. We convert the large 
+VCF files into text and index them with Tabix. Parsing these files for plotting
+is much faster.
+
+Since the files are indexed with Tabix, they must be tab delimited. For SNPs and 
+Indels, the first five columns are called ID, CHROM, POS, REF and ALT. They
+contain the SNP ID (if available), the chromosome, the base pair position,
+the reference allele and the alternate alleles, separated by commas. There
+follows two columns per strain. The first column must be named for the strain
+and contain a pair of allele (i.e. AA, CC, AC, etc.). The next column must be
+called quality and contains a 0 or 1, which corresponds to the FI tag from the
+Sanger VCF file. 0 is bad and 1 is good. If you do not have quality information 
+for your SNPs, then code all of the quality columns as 1.
+
+\begin{tabular}{ccccccc}
+ID&CHROM&POS&REF&ALT&129P2/OlaHsd&quality &
+rs261849515&7&103000927&G&A&GG&1&
+.&7&103001931&G&C,A&GG&1&
+.&7&103001952&A&T&AA&1&
+.&7&103002096&A&C&AA&1&
+.&7&103002180&G&A&GG&1&
+.&7&103002245&C&T&CC&1&
+\end{tabular}
+
+\end{document}

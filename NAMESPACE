@@ -1,0 +1,15 @@
+#exportPattern("^[[:alpha:]]+")
+
+export("cluster.strains",
+       "categorize.variants",
+	   "convert.variants.to.numeric",
+       "convert.variants.to.GRanges",
+	   "find.overlapping.genes",
+	   "get.mgi.features",
+	   "get.pattern.variants",
+       "get.strains",    
+	   "get.variants", 
+       "gene.plot",
+	   "snp.plot",
+	   "variant.plot")
+
