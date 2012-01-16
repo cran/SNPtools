@@ -4,7 +4,8 @@
 \description{
   This function intersects the given variants with the genes in that region and classifies them according to "intergenic", "3UTR", "exon", "intron" or "5UTR".
 }
-\usage{ categorize.variants(variants, mgi.file = "http://cgd.jax.org/tools/SNPtools/MGI/MGI.20130305.sorted.txt.gz") }
+\usage{ categorize.variants(variants, 
+        mgi.file = "http://cgd.jax.org/tools/SNPtools/MGI/MGI.20130305.sorted.txt.gz") }
 \arguments{
   \item{variants}{
     data.frame, Variants as returned by \code{\link{get.variants}{get.variants}}.
@@ -26,5 +27,5 @@
 \author{ Daniel Gatti }
 \examples{
   data(example.snps)
-  snp.type = categorize.variants(variants = example.snps[1:100,])
+  snp.type = categorize.variants(variants = example.snps[1:50,])
 }

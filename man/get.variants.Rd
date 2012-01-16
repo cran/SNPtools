@@ -5,7 +5,10 @@
   Get SNPs for a set of strains for a specific regions of chromosomes.
 }
 \usage{
-  get.variants(file = "http://cgd.jax.org/tools/SNPtools/Build38/sanger.snps.NCBI38.txt.gz", chr, start, end, type = c("snp", "indel", "sv"), strains, polymorphic = TRUE, quality)
+  get.variants(
+  file = "http://cgd.jax.org/tools/SNPtools/Build38/sanger.snps.NCBI38.txt.gz", 
+  chr, start, end, type = c("snp", "indel", "sv"), strains, polymorphic = TRUE, 
+  quality)
 }
 \arguments{
   \item{file}{

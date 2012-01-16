@@ -1,10 +1,10 @@
 Package: SNPtools
 Type: Package
 Title: Accessing, subsetting and plotting mouse SNPs.
-Version: 1.0
+Version: 1.1
 Date: 2012-01-16
 Author: Daniel Gatti
-Maintainer: <Dan.Gatti@jax.org>
+Maintainer: Daniel Gatti <Dan.Gatti@jax.org>
 Description: This package queries the SNPs data sets and makes plots of
         genes and SNPs.  This package allows users to access these data
         sets once they have been compiled into one file and indexed
@@ -17,7 +17,7 @@ Description: This package queries the SNPs data sets and makes plots of
 Depends: R (>= 2.10), IRanges, GenomicRanges, Biostrings, Rsamtools
 License: GPL-3
 Copyright: The Jackson Laboratory, 2013
-Packaged: 2013-03-30 17:47:27 UTC; dgatti
+Packaged: 2013-07-03 11:22:49 UTC; dgatti
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-04-01 15:51:49
+Date/Publication: 2013-07-03 14:07:14

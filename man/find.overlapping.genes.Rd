@@ -6,8 +6,8 @@
 }
 \usage{
   find.overlapping.genes(variants, 
-                  mgi.file = "http://cgd.jax.org/tools/SNPtools/MGI/MGI.20130305.sorted.txt.gz",
-                  type = c("gene", "exon"))
+  mgi.file = "http://cgd.jax.org/tools/SNPtools/MGI/MGI.20130305.sorted.txt.gz",
+  type = c("gene", "exon"))
 }
 \arguments{
   \item{variants}{
@@ -33,6 +33,8 @@
   \code{\link{get.mgi.features}{get.mgi.features}}
 }
 \examples{
-  data(example.snps)
-  x = find.overlapping.genes(variants = example.snps[19478:19506,])
+  \dontrun{
+    data(example.snps)
+    x = find.overlapping.genes(variants = example.snps[19478:19506,])
+  }
 }

@@ -5,7 +5,8 @@
   Get available strain names for a set of strains from a variant file.
 }
 \usage{
-  get.strains(file = "http://cgd.jax.org/tools/SNPtools/Build38/sanger.snps.NCBI38.txt.gz")
+  get.strains(
+  file = "http://cgd.jax.org/tools/SNPtools/Build38/sanger.snps.NCBI38.txt.gz")
 }
 \arguments{
   \item{file}{
